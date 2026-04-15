@@ -44,10 +44,6 @@ A dynamic SAP ABAP application that performs Create, Read, Update, and Delete (C
 
 ## 🧠 Core Concepts Used
 
-•⁠  ⁠Module Pool Programming  
-•⁠  ⁠Screen Painter (SE51)  
-•⁠  ⁠PBO (Process Before Output)  
-•⁠  ⁠PAI (Process After Input)  
 •⁠  ⁠Internal Tables & Work Areas  
 •⁠  ⁠Table Maintenance Generator (TMG)  
 •⁠  ⁠Lock Objects (ENQUEUE / DEQUEUE)  
@@ -58,11 +54,9 @@ A dynamic SAP ABAP application that performs Create, Read, Update, and Delete (C
 ## 🛠️ Tech Stack
 
 •⁠  ⁠*Language:* ABAP  
-•⁠  ⁠*Platform:* SAP ERP / S/4HANA  
-•⁠  ⁠*UI Technology:* Dynpro (Screen Programming)  
+•⁠  ⁠*Platform:* SAP ERP    
 
 •⁠  ⁠*Components:*  
-  - Module Pool Program  
   - Custom Database Table (ZEMP)  
   - TMG (Table Maintenance Generator)  
 
@@ -102,8 +96,7 @@ A dynamic SAP ABAP application that performs Create, Read, Update, and Delete (C
 
 •⁠  ⁠Employee Data Management System  
 •⁠  ⁠Learning CRUD Operations in ABAP  
-•⁠  ⁠Understanding Module Pool + TMG Integration  
-•⁠  ⁠SAP Screen Programming Practice  
+•⁠  ⁠Understanding TMG Event Integration  
 
 ---
 
