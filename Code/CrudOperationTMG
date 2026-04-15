@@ -1,0 +1,21 @@
+REPORT zemp_crud_demo NO STANDARD PAGE HEADING MESSAGE-ID zmsg.
+
+INCLUDE zemp_crud_top.      "Global data, constants, types
+INCLUDE zemp_crud_sel.      "Selection screen
+INCLUDE zemp_crud_pbo.      "AT SELECTION-SCREEN OUTPUT
+INCLUDE zemp_crud_form.     "FORM routines for CRUD
+INCLUDE zemp_crud_lock.     "Lock/Unlock logic
+
+*---------------------------------------------------------------------*
+* MAIN LOGIC
+*---------------------------------------------------------------------*
+START-OF-SELECTION.
+  IF p_create = 'X'.
+    PERFORM create_data.
+  ELSEIF p_read = 'X'.
+    PERFORM read_data.
+  ELSEIF p_update = 'X'.
+    PERFORM update_data.
+  ELSEIF p_delete = 'X'.
+    PERFORM delete_data.
+  ENDIF.

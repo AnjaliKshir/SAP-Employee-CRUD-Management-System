@@ -1,0 +1,268 @@
+*&---------------------------------------------------------------------*
+*& Include          ZEMP_CRUD_FORM
+*&---------------------------------------------------------------------*
+
+*---------------------------------------------------------------------*
+* CREATE
+*---------------------------------------------------------------------*
+FORM create_data.
+
+  IF p_emp = 'X'.
+
+    SELECT dept_id
+      FROM zemp_department
+      INTO TABLE @DATA(lt_dept)
+    WHERE dept_id = @p_edid.
+    IF sy-subrc <> 0.
+      MESSAGE i013 WITH p_edid. " Department not found
+    ELSE.
+      PERFORM lock_obj USING c_emp p_eid.
+
+      lwa_emp-emp_id   = p_eid.   "new syntax
+      lwa_emp-dept_id  = p_edid.
+      lwa_emp-emp_name = p_ename.
+      lwa_emp-role     = p_role.
+      lwa_emp-salary   = p_sal.
+      lwa_emp-created_on = sy-datum.
+      lwa_emp-created_by = sy-uname.
+      lwa_emp-updated_on = sy-datum.
+      lwa_emp-updated_by = sy-uname.
+
+      INSERT zemployee_dt FROM lwa_emp.
+
+      IF sy-subrc = 0.
+        COMMIT WORK.
+        MESSAGE s007.
+      ELSE.
+        ROLLBACK WORK.
+        MESSAGE i008.
+      ENDIF.
+
+      PERFORM unlock_obj USING c_emp p_eid.
+    ENDIF.
+
+  ELSE.
+
+    PERFORM lock_obj USING c_dpt p_did.
+
+    lwa_dept-dept_id   = p_did.
+    lwa_dept-dept_name = p_dname.
+    lwa_dept-location  = p_loc.
+    lwa_dept-created_on = sy-datum.
+    lwa_dept-created_by = sy-uname.
+    lwa_dept-updated_on = sy-datum.
+    lwa_dept-updated_by = sy-uname.
+
+    INSERT zemp_department FROM lwa_dept.
+
+    IF sy-subrc = 0.
+      COMMIT WORK.
+      MESSAGE s007.
+    ELSE.
+      ROLLBACK WORK.
+      MESSAGE i008.
+    ENDIF.
+
+    PERFORM unlock_obj USING c_dpt p_did.
+
+  ENDIF.
+
+ENDFORM.
+
+*---------------------------------------------------------------------*
+* READ
+*---------------------------------------------------------------------*
+FORM read_data.
+
+  IF p_emp = 'X'.
+
+    SELECT * FROM zemployee_dt INTO TABLE @DATA(lt_emp).
+    IF lt_emp IS INITIAL.
+      MESSAGE i001.
+    ENDIF.
+
+    WRITE: /1   TEXT-005,
+           20  TEXT-006,
+           40  TEXT-007,
+           60  TEXT-008,
+           80  TEXT-009,
+           100 TEXT-010,
+           120 TEXT-011,
+           140 TEXT-012,
+           160 TEXT-013.
+
+
+    LOOP AT lt_emp INTO lwa_emp.
+      WRITE: /1    lwa_emp-emp_id,
+               20   lwa_emp-dept_id,
+               40   lwa_emp-emp_name,
+               60   lwa_emp-role,
+               80   lwa_emp-salary,
+               100  lwa_emp-created_on,
+               120  lwa_emp-created_by,
+               140  lwa_emp-updated_on,
+               160  lwa_emp-updated_by.
+    ENDLOOP.
+
+  ELSE.
+
+    SELECT * FROM zemp_department INTO TABLE @DATA(lt_dept).
+    IF lt_dept IS INITIAL.
+      MESSAGE i001.
+    ENDIF.
+
+    WRITE: /1  TEXT-006,
+             20 TEXT-014,
+             40 TEXT-015,
+             60 TEXT-010,
+             80 TEXT-011,
+             100 TEXT-012,
+             120 TEXT-013.
+
+    LOOP AT lt_dept INTO lwa_dept.
+      WRITE: /1   lwa_dept-dept_id,
+               20  lwa_dept-dept_name,
+               40  lwa_dept-location,
+               60  lwa_dept-created_on,
+               80  lwa_dept-created_by,
+               100 lwa_dept-updated_on,
+               120 lwa_dept-updated_by.
+    ENDLOOP.
+
+  ENDIF.
+
+ENDFORM.
+
+*---------------------------------------------------------------------*
+* UPDATE
+*---------------------------------------------------------------------*
+FORM update_data.
+
+  IF p_emp = 'X'.
+    IF p_eid IS INITIAL OR p_edid IS INITIAL.
+      MESSAGE i014.
+    ENDIF.
+
+    SELECT SINGLE * FROM zemployee_dt
+      INTO @DATA(ls_emp)
+      WHERE emp_id = @p_eid
+    AND dept_id = @p_edid.
+    IF sy-subrc <> 0.
+      MESSAGE i001.
+    ENDIF.
+
+    IF p_ename IS NOT INITIAL.
+      lwa_emp-emp_name = p_ename.
+    ENDIF.
+    IF p_edid IS NOT INITIAL.
+      lwa_emp-dept_id = p_edid.
+    ENDIF.
+    IF p_role IS NOT INITIAL.
+      lwa_emp-role = p_role.
+    ENDIF.
+    IF p_sal IS NOT INITIAL.
+      lwa_emp-salary = p_sal.
+    ENDIF.
+    lwa_emp-updated_on = sy-datum.
+    lwa_emp-updated_by = sy-uname.
+
+    PERFORM lock_obj USING c_emp p_eid.
+    UPDATE zemployee_dt FROM lwa_emp.
+
+    IF sy-subrc = 0.
+      gv_lock = abap_false.
+      COMMIT WORK.
+      MESSAGE s005.
+    ELSE.
+      ROLLBACK WORK.
+      MESSAGE i006.
+    ENDIF.
+
+    PERFORM unlock_obj USING c_emp p_eid.
+
+  ELSE.
+
+    SELECT SINGLE * FROM zemp_department INTO lwa_dept
+    WHERE dept_id = p_did.
+    IF sy-subrc <> 0.
+      MESSAGE i003.
+    ENDIF.
+
+    IF p_dname IS NOT INITIAL.
+      lwa_dept-dept_name = p_dname.
+    ENDIF.
+    IF p_loc IS NOT INITIAL.
+      lwa_dept-location = p_loc.
+    ENDIF.
+    lwa_dept-updated_on = sy-datum.
+    lwa_dept-updated_by = sy-uname.
+
+    PERFORM lock_obj USING c_dpt p_did.
+    UPDATE zemp_department FROM lwa_dept.
+
+    IF sy-subrc = 0.
+      gv_lock = abap_false.
+      COMMIT WORK.
+      MESSAGE s005.
+    ELSE.
+      ROLLBACK WORK.
+      MESSAGE i006.
+    ENDIF.
+    clear lwa_dept.
+    PERFORM unlock_obj USING c_dpt p_did.
+
+  ENDIF.
+
+ENDFORM.
+
+*---------------------------------------------------------------------*
+* DELETE
+*---------------------------------------------------------------------*
+FORM delete_data.
+
+  IF p_emp = 'X'.
+    IF p_eid IS INITIAL OR p_edid IS INITIAL.
+      MESSAGE i014.
+    ELSE.
+      SELECT SINGLE * FROM zemployee_dt
+        INTO @DATA(ls_emp)
+        WHERE emp_id = @p_eid
+      AND dept_id = @p_edid.
+      IF sy-subrc <> 0.
+        MESSAGE i001.
+      ENDIF.
+
+      PERFORM lock_obj USING c_emp p_eid.
+
+      DELETE FROM zemployee_dt WHERE emp_id = p_eid
+                                 AND dept_id = p_edid.
+      IF sy-subrc = 0.
+        COMMIT WORK.
+        MESSAGE s009.
+      ELSE.
+        ROLLBACK WORK.
+        MESSAGE i010.
+      ENDIF.
+    ENDIF.
+    PERFORM unlock_obj USING c_emp p_eid.
+
+  ELSE.
+
+    PERFORM lock_obj USING c_dpt p_did.
+
+    DELETE FROM zemp_department WHERE dept_id = p_did.
+
+    IF sy-subrc = 0.
+      COMMIT WORK.
+      MESSAGE s009.
+
+    ELSE.
+      ROLLBACK WORK.
+      MESSAGE i010.
+    ENDIF.
+
+    PERFORM unlock_obj USING c_dpt p_did.
+
+  ENDIF.
+
+ENDFORM.

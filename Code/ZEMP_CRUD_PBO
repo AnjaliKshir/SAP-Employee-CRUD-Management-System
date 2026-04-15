@@ -1,0 +1,84 @@
+*&---------------------------------------------------------------------*
+*& Include          ZEMP_CRUD_PBO
+*&---------------------------------------------------------------------*
+
+AT SELECTION-SCREEN OUTPUT.
+  PERFORM selection_screen_output.
+
+FORM selection_screen_output.
+  "Auto Fetch Employee for UPDATE
+  IF p_update = 'X' AND p_emp = 'X' AND p_eid IS NOT INITIAL.
+    SELECT SINGLE * FROM zemployee_dt INTO lwa_emp
+      WHERE emp_id = p_eid.
+
+    IF sy-subrc = 0.
+      p_edid  = lwa_emp-dept_id.
+      p_ename = lwa_emp-emp_name.
+      p_role  = lwa_emp-role.
+      p_sal   = lwa_emp-salary.
+
+      gv_lock = abap_true.
+      MESSAGE s012.
+    ELSE.
+      MESSAGE i001.
+    ENDIF.
+  ENDIF.
+  "Auto Fetch Department for UPDATE
+  IF p_update = 'X' AND p_dept = 'X' AND p_did IS NOT INITIAL.
+    SELECT SINGLE * FROM zemp_department INTO lwa_dept
+      WHERE dept_id = p_did.
+
+    IF sy-subrc = 0.
+      p_dname = lwa_dept-dept_name.
+      p_loc   = lwa_dept-location.
+
+      gv_lock = abap_true.
+      MESSAGE s012.
+    ELSE.
+      MESSAGE i001.
+    ENDIF.
+  ENDIF.
+
+  LOOP AT SCREEN.
+    "Show/hide blocks
+    IF p_emp = 'X'.
+      IF screen-group1 = 'EMP'.
+        screen-active = 1.
+      ELSEIF screen-group1 = 'DPT'.
+        screen-active = 0.
+      ENDIF.
+    ELSEIF p_dept = 'X'.
+      IF screen-group1 = 'EMP'.
+        screen-active = 0.
+      ELSEIF screen-group1 = 'DPT'.
+        screen-active = 1.
+      ENDIF.
+    ENDIF.
+
+    "Grey-out Employee fields after auto-fetch
+    IF p_update = abap_true AND p_emp = abap_true AND p_ename IS NOT INITIAL AND gv_lock = abap_true.
+      IF screen-name = 'P_EID' OR screen-name = 'P_EDID'.
+        screen-input = 0.
+      ENDIF.
+    ELSE.
+      IF screen-name = 'P_EID' OR screen-name = 'P_EDID'.
+        screen-input = 1.
+      ENDIF.
+    ENDIF.
+
+    "Grey-out Department fields after auto-fetch
+    IF p_update = abap_true AND p_dept = abap_true AND p_dname IS NOT INITIAL AND gv_lock = abap_true.
+      IF screen-name = 'P_DID'.
+        screen-input = 0.
+      ENDIF.
+    ELSE.
+      IF screen-name = 'P_DID'.
+        screen-input = 1.
+      ENDIF.
+    ENDIF.
+
+    MODIFY SCREEN.
+
+  ENDLOOP.
+
+ENDFORM.

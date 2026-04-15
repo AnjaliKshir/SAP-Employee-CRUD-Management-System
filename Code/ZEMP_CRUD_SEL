@@ -1,0 +1,58 @@
+*&---------------------------------------------------------------------*
+*& Include          ZEMP_CRUD_SEL
+*&---------------------------------------------------------------------*
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-001.
+
+  PARAMETERS: p_create RADIOBUTTON GROUP g1 DEFAULT 'X' USER-COMMAND uc,
+              p_read   RADIOBUTTON GROUP g1,
+              p_update RADIOBUTTON GROUP g1,
+              p_delete RADIOBUTTON GROUP g1.
+
+SELECTION-SCREEN END OF BLOCK b1.
+
+SELECTION-SCREEN BEGIN OF BLOCK b2 WITH FRAME TITLE TEXT-002.
+
+  PARAMETERS: p_dept RADIOBUTTON GROUP g2 DEFAULT 'X' USER-COMMAND uc,
+              p_emp  RADIOBUTTON GROUP g2.
+
+SELECTION-SCREEN END OF BLOCK b2.
+
+*---------------------------------------------------------------------*
+* EMPLOYEE FIELDS
+*---------------------------------------------------------------------*
+SELECTION-SCREEN BEGIN OF BLOCK b3 WITH FRAME TITLE TEXT-003.
+
+  PARAMETERS: p_eid   TYPE zemployee_dt-emp_id   MODIF ID emp,
+              p_edid  TYPE zemployee_dt-dept_id MODIF ID emp,
+              p_ename TYPE zemployee_dt-emp_name MODIF ID emp,
+              p_role  TYPE zemployee_dt-role     MODIF ID emp,
+              p_sal   TYPE zemployee_dt-salary   MODIF ID emp.
+
+SELECTION-SCREEN END OF BLOCK b3.
+
+*---------------------------------------------------------------------*
+* DEPARTMENT FIELDS
+*---------------------------------------------------------------------*
+SELECTION-SCREEN BEGIN OF BLOCK b4 WITH FRAME TITLE TEXT-004.
+
+  PARAMETERS: p_did   TYPE zemp_department-dept_id   MODIF ID dpt,
+              p_dname TYPE zemp_department-dept_name MODIF ID dpt,
+              p_loc   TYPE zemp_department-location  MODIF ID dpt.
+
+SELECTION-SCREEN END OF BLOCK b4.
+
+" RESET SCREEN ON RADIO BUTTON SELECTION
+"-------------------------------------------------------------
+AT SELECTION-SCREEN.
+  PERFORM selection_screen_logic.
+
+FORM selection_screen_logic.
+
+  "Handle Radio Button Reset
+  IF sy-ucomm = 'UC'.
+    CLEAR: p_eid, p_edid, p_ename, p_role, p_sal,
+           p_did, p_dname, p_loc.
+    gv_lock = abap_false.
+  ENDIF.
+
+ENDFORM.

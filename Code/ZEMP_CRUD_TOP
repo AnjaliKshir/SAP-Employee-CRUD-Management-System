@@ -1,0 +1,11 @@
+*&---------------------------------------------------------------------*
+*& Include          ZEMP_CRUD_TOP
+*&---------------------------------------------------------------------*
+
+DATA: lwa_emp TYPE zemployee_dt,    "g
+      lwa_dept TYPE zemp_department.
+
+DATA gv_lock TYPE abap_bool.
+
+CONSTANTS: c_emp TYPE char10 VALUE 'EMP',
+           c_dpt TYPE char10 VALUE 'DPT'.

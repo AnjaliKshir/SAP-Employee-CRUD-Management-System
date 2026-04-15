@@ -1,0 +1,62 @@
+*&---------------------------------------------------------------------*
+*& Include          ZEMP_CRUD_LOCK
+*&---------------------------------------------------------------------*
+**---------------------------------------------------------------------*
+** LOCK OBJECT
+**---------------------------------------------------------------------*
+FORM lock_obj USING p_obj TYPE char10 p_id TYPE any.
+
+  CASE p_obj.
+
+    WHEN c_dpt. "DPT
+
+      CALL FUNCTION 'ENQUEUE_EZEMP_DEPT'
+        EXPORTING
+          mode_zemp_department = 'E'
+          mandt                = sy-mandt
+          dept_id              = p_id.
+
+      IF sy-subrc <> 0.
+        MESSAGE i011 WITH p_id.
+      ENDIF.
+
+    WHEN c_emp.  "EMP
+
+      CALL FUNCTION 'ENQUEUE_EZEMP_DT'
+        EXPORTING
+          mode_zemployee_dt = 'E'
+          mandt             = sy-mandt
+          emp_id            = p_id.
+
+      IF sy-subrc <> 0.
+        MESSAGE i011 WITH p_id..
+      ENDIF.
+
+  ENDCASE.
+
+ENDFORM.
+
+*---------------------------------------------------------------------*
+* UNLOCK OBJECT
+*---------------------------------------------------------------------*
+FORM unlock_obj USING p_obj TYPE char10 p_id TYPE any.
+
+  CASE p_obj.
+
+    WHEN c_dpt.  "DPT
+
+      CALL FUNCTION 'DEQUEUE_EZEMP_DEPT'
+        EXPORTING
+          mandt   = sy-mandt
+          dept_id = p_id.
+
+    WHEN c_emp.  "EMP
+
+      CALL FUNCTION 'DEQUEUE_EZEMP_DT'
+        EXPORTING
+          mandt  = sy-mandt
+          emp_id = p_id.
+
+  ENDCASE.
+
+ENDFORM.
